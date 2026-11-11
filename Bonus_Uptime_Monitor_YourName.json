@@ -1,0 +1,148 @@
+{
+  "name": "Bonus - Website Uptime Monitor",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "83dc5050-cfc3-4e85-9cd5-282d1165fe0b",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://www.realbugz.com/",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "6f2e08ac-b6cb-47c4-a0c8-915aac447c21",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f3ce7c07-c438-4bd7-9a3f-18dbfe9aa994",
+              "leftValue": "={{ $json.statusCode }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        448,
+        0
+      ],
+      "id": "e929e143-4d3b-4b81-9176-7993e1c92abf",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst status = $json.statusCode ?? \"No response\";\n\nreturn [{\n  json: {\n    website: \"https://www.realbugz.com/\",\n    status: status,\n    alert: \"WEBSITE DOWN\",\n    checked_at: new Date().toISOString(),\n    message: `Website check failed. HTTP status: ${status}`\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        96
+      ],
+      "id": "162dc92b-c66b-4063-8244-5f673dc28b7d",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {
+    "Code in JavaScript": [
+      {
+        "json": {
+          "statusCode": 503
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "21272dc3-19db-4209-afba-0c81130938ee",
+  "meta": {
+    "instanceId": "6a397e5c889cd525a57eb1a2bf1af38013d158077259de88892afad2e6b2638e"
+  },
+  "nodeGroups": [],
+  "id": "iyMiW1gITJQe15FI",
+  "tags": []
+}
